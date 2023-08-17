@@ -20,14 +20,12 @@ db = pymysql.connect(host='localhost',
 def save_to_mysql(address: str, tag: str):
     cursor = db.cursor()
     try:
-        result = cursor.execute('select * from info where address="%s";' % address)
-        data = result.fetchone()
-        if data:
+        result = cursor.execute(f'select * from info where address="{address}";')
+        if data := result.fetchone():
             cursor.execute('UPDATE info SET tag="%s" WHERE address ="%s";' % tag, address)
-            db.commit()
         else:
             cursor.execute('insert into info (address, tag) values ("%s", "%s");' % address, tag)
-            db.commit()
+        db.commit()
     except Exception as e:
         print(e)
     cursor.close()
@@ -36,8 +34,7 @@ def save_to_mysql(address: str, tag: str):
 def predict(columns):
     model_xgb = xgb.Booster()
     model_xgb.load_model("./boost.model")
-    r = model_xgb.predict(columns)
-    return r
+    return model_xgb.predict(columns)
 
 
 # ['out_count', 'in_count', 'out_addr_count', 'in_addr_count', 'out_avg', 'in_avg', 'gap_time']
