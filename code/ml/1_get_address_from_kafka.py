@@ -60,9 +60,7 @@ def get_info(tx_id: str):
             data = client.get_transaction(tx_id)
             _4byte = '0x' + \
                      data['raw_data']['contract'][0]['parameter']['value']['data'][:8]
-            # file download from https://www.4byte.directory/
-            function_name = json.load(open('./_4byte_dic.json'))[_4byte]
-            return function_name
+            return json.load(open('./_4byte_dic.json'))[_4byte]
         except requests.exceptions.ProxyError:
             time.sleep(3)
             continue
@@ -83,8 +81,12 @@ def save_data(it, precision):
     function_name = get_info(transaction_hash)
     try:
         with open('./transactions.csv', 'a') as f:
-            f.writelines(transaction_hash + ',' + str(timestamp) + ',' + from_address + ',' + to_address + ',' + str(
-                value) + ',' + function_name + '\n')
+            f.writelines(
+                (
+                    f'{transaction_hash},{str(timestamp)},{from_address},{to_address},{value},{function_name}'
+                    + '\n'
+                )
+            )
         return True
     except Exception as e:
         return False
@@ -98,12 +100,10 @@ if __name__ == "__main__":
         item = msg[6]
         contract_address = item['contractAddress']
         # get USDT Token
-        if contract_address == 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t':
-            redis_conn.set(item['topicMap']['from'], hash(item['topicMap']['from']))
-            redis_conn.set(item['topicMap']['to'], hash(item['topicMap']['to']))
-            save_data(item, 6)
-        # get USDC Token
-        elif contract_address == "TEkxiTehnzSmSe2XqrBj4w32RUN966rdz8":
+        if contract_address in [
+            'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t',
+            "TEkxiTehnzSmSe2XqrBj4w32RUN966rdz8",
+        ]:
             redis_conn.set(item['topicMap']['from'], hash(item['topicMap']['from']))
             redis_conn.set(item['topicMap']['to'], hash(item['topicMap']['to']))
             save_data(item, 6)

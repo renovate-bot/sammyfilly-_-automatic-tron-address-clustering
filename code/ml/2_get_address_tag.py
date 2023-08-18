@@ -19,7 +19,7 @@ for addr in data:
         if 'addressTag' in result.keys():
             tag = result['addressTag']
             with open("./data.csv", "a") as f:
-                f.writelines(addr + "," + tag + "\n")
+                f.writelines(f"{addr},{tag}" + "\n")
     except requests.exceptions.RequestException as e:
         print(e)
         with open("./error.txt", "a") as k:
